@@ -2,42 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>STOCKMIND KR</title>
-
-<!-- PWA -->
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="STOCKMIND">
-<meta name="theme-color" content="#1a1612">
-<meta name="description" content="AI 기반 국내 주식 자동매매 에이전트">
-
-<!-- 인라인 manifest (별도 파일 불필요) -->
-<script>
-const manifestData = {
-  name: 'STOCKMIND KR',
-  short_name: 'STOCKMIND',
-  description: 'AI 기반 국내 주식 자동매매 에이전트',
-  start_url: '.',
-  display: 'standalone',
-  background_color: '#f5f2ee',
-  theme_color: '#1a1612',
-  orientation: 'portrait-primary',
-  icons: [
-    {
-      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%231a1612'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='%23f5f2ee' font-family='serif' font-weight='900'%3E%E2%80%8B%E2%AC%86%3C/text%3E%3Ctext x='96' y='170' font-size='22' text-anchor='middle' fill='%23f5f2ee' font-family='monospace'%3ESTOCKMIND%3C/text%3E%3C/svg%3E",
-      sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable'
-    }
-  ]
-};
-const blob = new Blob([JSON.stringify(manifestData)], {type:'application/json'});
-const manifestUrl = URL.createObjectURL(blob);
-const link = document.createElement('link');
-link.rel = 'manifest'; link.href = manifestUrl;
-document.currentScript.after(link);
-</script>
-
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1268,70 +1234,6 @@ function closeModal() {
 
 // ── 시작 ──────────────────────────────────────────────────────────────────────
 init();
-
-// ── PWA 설치 안내 ──────────────────────────────────────────────────────────────
-let deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  showInstallBanner();
-});
-
-function showInstallBanner() {
-  if (document.getElementById('installBanner')) return;
-  const banner = document.createElement('div');
-  banner.id = 'installBanner';
-  banner.style.cssText = `
-    position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
-    background:#1a1612; color:#f5f2ee; padding:12px 20px;
-    font-family:'DM Mono',monospace; font-size:12px;
-    display:flex; align-items:center; gap:12px;
-    border:1px solid #444; z-index:9999; white-space:nowrap;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  `;
-  banner.innerHTML = `
-    <span>📲 홈 화면에 앱으로 추가하기</span>
-    <button onclick="installApp()" style="
-      background:#f5f2ee; color:#1a1612; border:none;
-      padding:6px 14px; font-family:inherit; font-size:12px;
-      font-weight:700; cursor:pointer;">설치</button>
-    <button onclick="this.parentElement.remove()" style="
-      background:transparent; color:#666; border:none;
-      cursor:pointer; font-size:16px; padding:0 4px;">✕</button>
-  `;
-  document.body.appendChild(banner);
-}
-
-async function installApp() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const result = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    document.getElementById('installBanner')?.remove();
-  } else {
-    // 수동 안내 (iOS 등)
-    alert('📲 홈 화면 추가 방법:\n\n크롬: 우측 상단 메뉴(⋮) → "홈 화면에 추가"\nSamsung: 메뉴 → "페이지 추가" → "홈 화면"');
-  }
-}
-
-// Service Worker 등록 (오프라인 캐시)
-if ('serviceWorker' in navigator) {
-  const swCode = `
-    const CACHE = 'stockmind-v1';
-    self.addEventListener('install', e => {
-      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
-    });
-    self.addEventListener('fetch', e => {
-      e.respondWith(
-        fetch(e.request).catch(() => caches.match(e.request))
-      );
-    });
-  `;
-  const swBlob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(swBlob);
-  navigator.serviceWorker.register(swUrl).catch(() => {});
-}
 </script>
 </body>
 </html>
